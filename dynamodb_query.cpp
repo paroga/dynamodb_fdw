@@ -24,7 +24,9 @@ extern "C"
 #include "commands/defrem.h"
 #include "commands/vacuum.h"
 #include "dynamodb_fdw.h"
+#ifdef ENABLE_JANSSON
 #include "jansson.h"
+#endif
 #include "string.h"
 
 #include "utils/json.h"
@@ -570,6 +572,7 @@ dynamodb_convert_to_pg(Oid pgtyp, int pgtypmod, Aws::DynamoDB::Model::AttributeV
 	return returnDatum;
 }
 
+#ifdef ENABLE_JANSSON
 static Aws::DynamoDB::Model::AttributeValue
 dynamodb_bind_json_value(json_t *root, char* key_name)
 {
@@ -644,6 +647,7 @@ dynamodb_bind_json_value(json_t *root, char* key_name)
 		}
 	return bindValue;
 }
+#endif
 
 void
 dynamodb_bind_array(Oid element_type, Datum value, Aws::Vector<Aws::String> *vectorValues)
@@ -826,6 +830,7 @@ dynamodb_bind_sql_var(Oid type, int attnum, Datum value, const char *query, bool
 		case JSONOID:
 		case JSONBOID:
 			{
+#ifdef ENABLE_JANSSON
 				char		   *outputString = NULL;
 				Oid				outputFunctionId = InvalidOid;
 				bool			typeVarLength = false;
@@ -838,6 +843,9 @@ dynamodb_bind_sql_var(Oid type, int attnum, Datum value, const char *query, bool
 				root = json_loads(outputString, JSON_DECODE_ANY, &error);
 
 				value1 = dynamodb_bind_json_value(root, NULL);
+#else
+				elog(ERROR, "dynamodb_fdw: converting constant JSON value to DynamoDB is not implemented");
+#endif
 				break;
 			}
 		default:

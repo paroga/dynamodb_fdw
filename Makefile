@@ -14,7 +14,7 @@ OBJS_JANSSON = 	$(DIRJANSSON)/dump.o \
 JANSSON_CFLAGS = -DHAVE_STDINT_H=1 -Wno-suggest-attribute=format
 
 MODULE_big = dynamodb_fdw
-OBJS = $(OBJS_JANSSON) shippable.o deparse.o dynamodb_query.o dynamodb_impl.o dynamodb_fdw.o connection.o option.o
+OBJS = shippable.o deparse.o dynamodb_query.o dynamodb_impl.o dynamodb_fdw.o connection.o option.o
 
 PGFILEDESC = "dynamodb_fdw - foreign data wrapper for DynamoDB"
 

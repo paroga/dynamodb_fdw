@@ -52,7 +52,9 @@ extern "C"
 #include "commands/defrem.h"
 #include "common/keywords.h"
 #include "ctype.h"
+#ifdef ENABLE_JANSSON
 #include "jansson.h"
+#endif
 #include "nodes/makefuncs.h"
 #include "nodes/nodeFuncs.h"
 #include "nodes/plannodes.h"
@@ -1661,6 +1663,7 @@ dynamodb_deparse_var(Var *node, deparse_expr_cxt *context)
 	}
 }
 
+#ifdef ENABLE_JANSSON
 /*
  * dynamodb_deparse_json_value
  *
@@ -1741,6 +1744,7 @@ dynamodb_deparse_json_value(json_t *root, StringInfo buf)
 			}
 	}
 }
+#endif
 
 /*
  * Deparse ARRAY[...] construct.
@@ -1833,6 +1837,7 @@ dynamodb_deparse_const(Const *node, deparse_expr_cxt *context)
 			case JSONOID:
 			case JSONBOID:
 			{
+#ifdef ENABLE_JANSSON
 				json_t *root;
 				json_error_t error;
 
@@ -1842,6 +1847,9 @@ dynamodb_deparse_const(Const *node, deparse_expr_cxt *context)
 					elog(ERROR, "dynamodb_fdw: Failed to parse the JSON value");
 
 				dynamodb_deparse_json_value(root, buf);
+#else
+				elog(ERROR, "dynamodb_fdw: Parsing of JSON values is not implemented");
+#endif
 				break;
 			}
 			default:
